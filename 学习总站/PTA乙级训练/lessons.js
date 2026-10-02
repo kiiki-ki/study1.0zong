@@ -1,0 +1,105 @@
+/* PTA 乙级训练 · 从 0 开始循序课程（含判题标准 stdin/output）
+   字段：{ id, chapter, title, lang, teach, points, code, stdin, output } */
+window.LESSONS = [
+  { id:"g0", chapter:"开始这里", title:"PTA 乙级是什么 · 怎么练", lang:"c",
+    teach:"【PTA 乙级】浙大“拼题A(PAT)”的基础级(PAT Basic Level)，题号约 1001~1095，属于“本科 C 语言 + 简单算法”难度，正是复试/上机打基础的黄金题库。\n\n【常考类型】\n① 输入输出/格式化（A+B、多组输入、格式陷阱）\n② 数学（素数、最大公约数、进制转换、阶乘）\n③ 字符串处理（统计、回文、单词反转）\n④ 数组/排序/查找\n⑤ 简单模拟（成绩统计、日期计算）\n\n【怎么练】注册 pintia.cn(拼题A) → 题库 → 乙级(Basic) → 从 1001 顺序做，每题都在本页“在线运行+判题”练手。目标：把 1001~1050 做熟，乙级就稳了。\n\n【本课程路线】第1步 输入输出 → 第2步 数学与进制 → 第3步 字符串 → 第4步 数组·排序·查找 → 第5步 综合模拟。按顺序做完，你就到乙级入门水平。",
+    points:"乙级不难，难在“细心”：看清输出格式(空格/换行)、注意边界、大数用 long long。",
+    code:"/* 热身：多组输入 A+B */\n#include <stdio.h>\nint main(){ int a,b; while(scanf(\"%d %d\",&a,&b)!=EOF) printf(\"%d\\n\",a+b); return 0; }\n",
+    stdin:"1 2\n3 4\n", output:"3\n7\n" },
+
+  { id:"s1", chapter:"第1步 · 输入输出", title:"第一个程序 & A+B", lang:"c",
+    teach:"程序从 main 开始，返回 0 表示正常结束。scanf 读入(变量前加 &)，printf 输出。%d 整数、%lld 长整型、%f 浮点、%s 字符串。",
+    points:"忘记 & 是新手第一大坑；printf 一定要写对换行 \\n。",
+    code:'#include <stdio.h>\nint main(){\n    int a, b;\n    scanf("%d %d", &a, &b);\n    printf("%d\\n", a + b);\n    return 0;\n}\n',
+    stdin:"2 3\n", output:"5\n" },
+
+  { id:"s2", chapter:"第1步 · 输入输出", title:"多组输入到 EOF", lang:"c",
+    teach:"很多题是多组数据，读到文件结束：while(scanf(...)!=EOF){...}。也有题先读一个 T 表示组数。",
+    points:"EOF 判断是乙级最常见考点。",
+    code:'#include <stdio.h>\nint main(){\n    int a, b;\n    while(scanf("%d %d", &a, &b) != EOF){\n        printf("%d\\n", a + b);\n    }\n    return 0;\n}\n',
+    stdin:"1 2\n3 4\n5 6\n", output:"3\n7\n11\n" },
+
+  { id:"s3", chapter:"第1步 · 输入输出", title:"读含空格的整行", lang:"c",
+    teach:"scanf(\"%s\") 遇到空格就停。要读一整个带空格的句子，用 fgets(读一行)或 getchar 逐字符读。",
+    points:"fgets 会把行尾 '\\n' 也读进来，常需要去掉它。",
+    code:'#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[1000];\n    fgets(s, sizeof(s), stdin);\n    s[strcspn(s, "\\n")] = 0;   /* 去掉行尾换行 */\n    printf("长度: %d\\n", (int)strlen(s));\n    printf("内容: %s\\n", s);\n    return 0;\n}\n',
+    stdin:"hello world\n", output:"长度: 11\n内容: hello world\n" },
+
+  { id:"s4", chapter:"第2步 · 数学与进制", title:"判断素数", lang:"c",
+    teach:"素数(质数)只有 1 和自身两个因数。1 不是素数；2 是素数。判断方法：从 2 试除到 sqrt(n) 即可（若 n 有因数，必有一个 ≤√n）。",
+    points:"用 i*i<=n 避免浮点误差；注意 n<2 直接不是素数。",
+    code:'#include <stdio.h>\nint isPrime(int n){\n    if(n < 2) return 0;\n    for(int i = 2; (long long)i * i <= n; i++) if(n % i == 0) return 0;\n    return 1;\n}\nint main(){\n    int n;\n    scanf("%d", &n);\n    printf(isPrime(n) ? "素数\\n" : "不是素数\\n");\n    return 0;\n}\n',
+    stdin:"17\n", output:"素数\n" },
+
+  { id:"s5", chapter:"第2步 · 数学与进制", title:"求和与阶乘（用 long long）", lang:"c",
+    teach:"循环累加、累乘。结果可能很大（比如 20! 超出 int），要用 long long(-9223372036854775808 ~ 9223372036854775807)。",
+    points:"int 约 21 亿就溢出；大数一律 long long，输出用 %lld。",
+    code:'#include <stdio.h>\nint main(){\n    int n, i;\n    long long sum = 0, fact = 1;\n    scanf("%d", &n);\n    for(i = 1; i <= n; i++){ sum += i; fact *= i; }\n    printf("和 = %lld\\n", sum);\n    printf("阶乘 = %lld\\n", fact);\n    return 0;\n}\n',
+    stdin:"5\n", output:"和 = 15\n阶乘 = 120\n" },
+
+  { id:"s6", chapter:"第2步 · 数学与进制", title:"最大公约数 & 最小公倍数", lang:"c",
+    teach:"辗转相除法(欧几里得)求 gcd：gcd(a,b)=gcd(b,a%b)，直到 b=0。lcm = a/gcd*b（先除后乘，防溢出）。",
+    points:"lcm 一定要先除再乘；gcd 用 while(b){t=a%b;a=b;b=t;}。",
+    code:'#include <stdio.h>\nint gcd(int a, int b){ while(b){ int t = a % b; a = b; b = t; } return a; }\nint main(){\n    int a, b, g;\n    scanf("%d %d", &a, &b);\n    g = gcd(a, b);\n    printf("gcd = %d\\n", g);\n    printf("lcm = %d\\n", a / g * b);\n    return 0;\n}\n',
+    stdin:"12 18\n", output:"gcd = 6\nlcm = 36\n" },
+
+  { id:"s7", chapter:"第2步 · 数学与进制", title:"进制转换（除基取余）", lang:"c",
+    teach:"把十进制 n 转成 base 进制：反复 n%base 得到低位，n/=base；余数倒序排列即为结果。",
+    points:"n=0 要单独输出 0；用数组存余数再倒序打印。",
+    code:'#include <stdio.h>\nint main(){\n    int n, base, a[64], k = 0, i;\n    scanf("%d %d", &n, &base);   /* 把 n 转成 base 进制 */\n    if(n == 0){ printf("0\\n"); return 0; }\n    while(n > 0){ a[k++] = n % base; n /= base; }\n    for(i = k - 1; i >= 0; i--) printf("%d", a[i]);\n    printf("\\n");\n    return 0;\n}\n',
+    stdin:"10 2\n", output:"1010\n" },
+
+  { id:"s8", chapter:"第3步 · 字符串", title:"字符分类统计", lang:"c",
+    teach:"遍历字符串，把字符分类计数：字母/数字/空白/其他。字符比较用单引号。",
+    points:"'a'<=c<='z'、'0'<=c<='9'；注意空格和换行都算空白。",
+    code:'#include <stdio.h>\nint main(){\n    char s[1000];\n    int i, letter = 0, digit = 0, blank = 0, other = 0;\n    fgets(s, sizeof(s), stdin);\n    for(i = 0; s[i]; i++){\n        char c = s[i];\n        if((c >= \'a\' && c <= \'z\') || (c >= \'A\' && c <= \'Z\')) letter++;\n        else if(c >= \'0\' && c <= \'9\') digit++;\n        else if(c == \' \' || c == \'\\n\') blank++;\n        else other++;\n    }\n    printf("字母=%d 数字=%d 空白=%d 其他=%d\\n", letter, digit, blank, other);\n    return 0;\n}\n',
+    stdin:"Abc123 x!\n", output:"字母=4 数字=3 空白=2 其他=1\n" },
+
+  { id:"s9", chapter:"第3步 · 字符串", title:"回文判断", lang:"c",
+    teach:"回文=正读反读一样。用双指针：i 从头、j 从尾，相向比较，一旦不等就不是回文。",
+    points:"下标从 0 到 len-1；i<j 为循环条件。",
+    code:'#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[1000];\n    int i, j, ok = 1;\n    scanf("%s", s);\n    for(i = 0, j = strlen(s) - 1; i < j; i++, j--) if(s[i] != s[j]){ ok = 0; break; }\n    printf(ok ? "是回文\\n" : "不是回文\\n");\n    return 0;\n}\n',
+    stdin:"level\n", output:"是回文\n" },
+
+  { id:"s10", chapter:"第3步 · 字符串", title:"单词反转（“说反话”类）", lang:"c",
+    teach:"把一行里的单词按倒序输出（经典乙级题型）。做法：从后往前扫，遇到空格就输出一个单词。",
+    points:"先去掉行尾空白；用一个 end 记录当前单词的结束位置。",
+    code:'#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[1000];\n    int i, n, end;\n    fgets(s, sizeof(s), stdin);\n    n = strlen(s);\n    while(n > 0 && (s[n-1] == \'\\n\' || s[n-1] == \' \')) n--;   /* 去尾部空白 */\n    end = n;\n    for(i = n - 1; i >= -1; i--){\n        if(i < 0 || s[i] == \' \'){\n            int j;\n            for(j = i + 1; j < end; j++) putchar(s[j]);\n            if(i >= 0) putchar(\' \');\n            end = i;\n        }\n    }\n    putchar(\'\\n\');\n    return 0;\n}\n',
+    stdin:"hello world\n", output:"world hello\n" },
+
+  { id:"s11", chapter:"第4步 · 数组·排序·查找", title:"数组统计（最大/最小/和/平均）", lang:"c",
+    teach:"读 n 个数，一次遍历即可求出最大、最小、和；平均用 (double)sum/n 保留小数。",
+    points:"最大值/最小值用“第一个数”作初值，避免用 0 出错（可能有负数）。",
+    code:'#include <stdio.h>\nint main(){\n    int n, i, x, mx = 0, mn = 0;\n    long long sum = 0;\n    scanf("%d", &n);\n    for(i = 0; i < n; i++){\n        scanf("%d", &x);\n        if(i == 0 || x > mx) mx = x;\n        if(i == 0 || x < mn) mn = x;\n        sum += x;\n    }\n    printf("最大=%d 最小=%d 和=%lld 平均=%.2f\\n", mx, mn, sum, (double)sum / n);\n    return 0;\n}\n',
+    stdin:"5\n3 9 2 7 5\n", output:"最大=9 最小=2 和=26 平均=5.20\n" },
+
+  { id:"s12", chapter:"第4步 · 数组·排序·查找", title:"排序：qsort 用法", lang:"c",
+    teach:"PTA 上排序常用 C 标准库的 qsort：qsort(数组, 个数, 每元素字节, 比较函数)。比较函数返回 <0 表示 a 排前，>0 排后。",
+    points:"比较函数参数是 const void*，要先转成实际类型指针再取值。",
+    code:'#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void *a, const void *b){\n    int x = *(int*)a, y = *(int*)b;\n    if(x < y) return -1;\n    if(x > y) return 1;\n    return 0;\n}\nint main(){\n    int a[100], n, i;\n    scanf("%d", &n);\n    for(i = 0; i < n; i++) scanf("%d", &a[i]);\n    qsort(a, n, sizeof(int), cmp);\n    for(i = 0; i < n; i++) printf("%d ", a[i]);\n    printf("\\n");\n    return 0;\n}\n',
+    stdin:"6\n5 2 8 1 9 3\n", output:"1 2 3 5 8 9 \n" },
+
+  { id:"s13", chapter:"第4步 · 数组·排序·查找", title:"二分查找", lang:"c",
+    teach:"在有序数组中查找：每次取中间比较，命中即返回；比中间小去左半、大去右半。O(log n)。",
+    points:"循环条件 low<=high；mid=(low+high)/2；注意数组必须有序。",
+    code:'#include <stdio.h>\nint main(){\n    int a[100], n, i, x, l, r, mid, pos = -1;\n    scanf("%d", &n);\n    for(i = 0; i < n; i++) scanf("%d", &a[i]);\n    scanf("%d", &x);\n    l = 0; r = n - 1;\n    while(l <= r){ mid = (l + r) / 2;\n        if(a[mid] == x){ pos = mid; break; }\n        else if(a[mid] < x) l = mid + 1; else r = mid - 1; }\n    if(pos >= 0) printf("找到，下标 %d\\n", pos);\n    else printf("未找到\\n");\n    return 0;\n}\n',
+    stdin:"6\n1 3 5 7 9 11\n7\n", output:"找到，下标 3\n" },
+
+  { id:"s14", chapter:"第5步 · 综合模拟", title:"成绩排名（结构体+排序）", lang:"c",
+    teach:"模拟题常见：读入学生(学号,成绩)，按成绩降序排名，成绩相同按学号升序。用结构体数组 + 自定义比较函数。",
+    points:"比较函数里成绩不同比成绩，相同再比学号——多关键字排序。",
+    code:'#include <stdio.h>\n#include <stdlib.h>\ntypedef struct { int id, score; } Stu;\nint cmp(const void *a, const void *b){\n    Stu *x = (Stu*)a, *y = (Stu*)b;\n    if(x->score != y->score) return y->score - x->score;  /* 成绩降序 */\n    return x->id - y->id;                                  /* 学号升序 */\n}\nint main(){\n    Stu a[100];\n    int n, i;\n    scanf("%d", &n);\n    for(i = 0; i < n; i++) scanf("%d %d", &a[i].id, &a[i].score);\n    qsort(a, n, sizeof(Stu), cmp);\n    for(i = 0; i < n; i++) printf("%d %d\\n", a[i].id, a[i].score);\n    return 0;\n}\n',
+    stdin:"4\n1001 88\n1002 95\n1003 88\n1004 70\n", output:"1002 95\n1001 88\n1003 88\n1004 70\n" },
+
+  { id:"s15", chapter:"第5步 · 综合模拟", title:"日期计算（闰年/第几天）", lang:"c",
+    teach:"闰年：(能被4整除且不能被100整除) 或 (能被400整除)。求某日期是本年第几天：累加前面整月天数 + 日，注意 2 月闰年 29 天。",
+    points:"用一个月份天数数组 {31,28,...}，闰年时把 2 月改成 29。",
+    code:'#include <stdio.h>\nint isLeap(int y){ return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0; }\nint main(){\n    int y, m, d, i, day = 0;\n    int md[] = {31,28,31,30,31,30,31,31,30,31,30,31};\n    scanf("%d %d %d", &y, &m, &d);\n    if(isLeap(y)) md[1] = 29;\n    for(i = 0; i < m - 1; i++) day += md[i];\n    day += d;\n    printf("第 %d 天\\n", day);\n    return 0;\n}\n',
+    stdin:"2024 3 1\n", output:"第 61 天\n" },
+
+  { id:"list", chapter:"刷题清单", title:"PTA乙级 1001~1050 题号 + 考点", lang:"c",
+    teach:"按题号 1001 → 1050 顺序刷，每题吃透它的【考点】。★ = 相对较难，卡住先跳过、回头再打。\n\n1001 害死人不偿命的(3n+1)猜想 — 循环模拟\n1002 写出这个数 — 大数(字符串)逐位处理 + 中文数字映射\n1003 我要通过！ — 字符串规则判断(绕)\n1004 成绩排名 — 结构体、求最值\n1005 继续(3n+1)猜想 — 数组标记、去重\n1006 换个格式输出整数 — 格式化输出、按位取数\n1007 素数对猜想 — 素数筛\n1008 数组元素循环右移问题 — 数组、模拟移位\n1009 说反话 — 字符串、按空格倒序\n1010 一元多项式求导 — 模拟、边界处理\n1011 A+B 和 C — 大数比较(long long)\n1012 数字分类 — 分类统计、条件判断\n1013 数素数 — 素数筛、第 M~N 个素数\n1014 福尔摩斯的约会 — 字符串、字符匹配、格式\n1015 德才论 — 结构体 + 多关键字排序(经典)\n1016 部分A+B — 数字重组\n1017 A除以B — 大数除法(字符串逐位)\n1018 锤子剪刀布 — 模拟、计数、按序输出\n1019 数字黑洞 — 排序 + 迭代模拟\n1020 月饼 — 贪心：按单价排序(经典)\n1021 个位数统计 — 计数数组\n1022 D进制的A+B — 进制转换\n1023 组个最小数 — 贪心构造\n1024 科学计数法 — 字符串模拟(较难)\n1025 反转链表 — 数组模拟链表(较难)\n1026 程序运行时间 — 时间换算、四舍五入\n1027 打印沙漏 — 图形打印、格式\n1028 人口普查 — 日期比较、边界(经典坑)\n1029 旧键盘 — 字符串、大小写统一、集合\n1030 完美数列 — 排序 + 双指针(经典)\n1031 查验身份证 — 字符串、加权校验码\n1032 挖掘机技术哪家强 — 数组、最值\n1033 旧键盘打字 — 字符串、上档键处理\n1034 有理数四则运算 — 分数运算、gcd、格式化(较难)\n1035 插入与归并 — 判断排序过程、归并(较难)\n1036 跟奥巴马一起编程 — 图形、四舍五入\n1037 在霍格沃茨找零钱 — 17进/29进制换算\n1038 统计同成绩学生 — 计数数组\n1039 到底买不买 — 字符计数、比较\n1040 有几个PAT — 前后缀计数递推(经典)\n1041 考试座位号 — 结构体、按试机号查\n1042 字符统计 — 计数、求最大、字母序\n1043 输出PATest — 计数、按序输出\n1044 火星数字 — 进制/映射(较难)\n1045 快速排序 — 主元判断、前缀最大值(经典)\n1046 划拳 — 模拟、计数\n1047 编程团体赛 — 数组、分组求和\n1048 数字加密 — 字符串、奇偶位不同处理\n1049 数列的片段和 — 数学规律 + double 精度(经典坑)\n1050 螺旋矩阵 — 二维数组、模拟填充(较难)\n\n【分水岭】1015(多关键字排序)、1020(贪心)、1030(双指针)、1040(递推)、1045(主元) 会了，乙级基本稳。",
+    points:"先刷 1001~1015(输入输出/数学/结构体/字符串)，再攻 1016~1035，最后 1036~1050。每题在本页“在线运行+判题”练。",
+    code:"/* 到 pintia.cn 乙级题库练习；这里给一个通用多组输入模板 */\n#include <stdio.h>\nint main(){ int a,b; while(scanf(\"%d %d\",&a,&b)!=EOF) printf(\"%d\\n\",a+b); return 0; }\n",
+    stdin:"1 2\n", output:"3\n" },
+];

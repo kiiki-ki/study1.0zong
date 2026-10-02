@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>一站式学习 · 408 / 上机实战 / PTA乙级</title>
+<style>
+  html,body{margin:0;height:100%;background:#0f172a;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}
+  header{position:fixed;top:0;left:0;right:0;height:calc(52px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);
+    background:#0f172a;color:#fff;display:flex;align-items:center;gap:10px;padding-left:12px;padding-right:12px;z-index:100;box-sizing:border-box;}
+  header b{font-size:15px;white-space:nowrap;}
+  nav{display:flex;gap:8px;flex:1;overflow-x:auto;scrollbar-width:none;}
+  nav::-webkit-scrollbar{display:none;}
+  .tab{border:0;border-radius:9px;padding:8px 13px;font-size:13.5px;cursor:pointer;background:#1e293b;color:#cbd5e1;white-space:nowrap;}
+  .tab.on{background:#2563eb;color:#fff;}
+  iframe{position:fixed;top:calc(52px + env(safe-area-inset-top));left:0;right:0;bottom:0;width:100%;border:0;display:none;background:#fff;}
+  iframe.on{display:block;}
+  #dash{position:fixed;top:calc(52px + env(safe-area-inset-top));left:0;right:0;bottom:0;overflow:auto;display:none;background:#f4f6fa;}
+  #dash.on{display:block;}
+  #dash .wrap{max-width:760px;margin:0 auto;padding:16px 14px 50px;}
+  h1{font-size:20px;margin:6px 0 14px;color:#1f2733;}
+  .card{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 2px 10px rgba(30,50,90,.06);margin:12px 0;color:#1f2733;}
+  .card h2{font-size:15px;margin:0 0 10px;}
+  .prog{margin:12px 0;}
+  .prog .top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px;}
+  .bar{height:12px;background:#eef2f9;border-radius:7px;overflow:hidden;}
+  .bar i{display:block;height:100%;background:#2563eb;border-radius:7px;transition:width .3s;}
+  .bar i.g{background:#2f9e44;} .bar i.o{background:#e8590c;}
+  .meta{font-size:12.5px;color:#6b7686;margin-top:5px;}
+  .quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .qbtn{border:0;border-radius:9px;padding:9px 14px;font-size:14px;cursor:pointer;background:#e8eef6;color:#2563eb;}
+  .todo{list-style:none;padding:0;margin:6px 0 0;}
+  .todo li{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dashed #eef2f9;font-size:14.5px;}
+  .todo input{width:18px;height:18px;}
+  .todo label.done{color:#9aa4b2;text-decoration:line-through;}
+  .tip{color:#1f2733;font-size:14.5px;line-height:1.9;}
+  .note{color:#8a95a6;font-size:12.5px;margin-top:10px;}
+  .small{font-size:12.5px;color:#6b7686;}
+</style>
+</head>
+<body>
+<header>
+  <b>一站式学习</b>
+  <nav>
+    <button class="tab on" data-t="dash">🏠 首页</button>
+    <button class="tab" data-t="0">📘 408 知识点</button>
+    <button class="tab" data-t="1">💻 上机实战</button>
+    <button class="tab" data-t="2">🎯 PTA 乙级</button>
+    <button class="tab" data-t="3">🗂 学习指南</button>
+  </nav>
+</header>
+
+<div id="dash" class="on"><div class="wrap" id="dashwrap"></div></div>
+<iframe id="f0" src="408学习/index.html"></iframe>
+<iframe id="f1" src="上机实战/index.html"></iframe>
+<iframe id="f2" src="PTA乙级训练/index.html"></iframe>
+<iframe id="f3" src="guide.html"></iframe>
+
+<script>
+/* 读取某 key 的对象个数 / 数值 */
+function cnt(k){ try{ return Object.keys(JSON.parse(localStorage.getItem(k)||"{}")).length; }catch(e){ return 0; } }
+function num(k,d){ var v=parseInt(localStorage.getItem(k)||"",10); return isNaN(v)?d:v; }
+function today(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+
+function renderDash(){
+  var L408 = cnt("c408_learned"), T408 = 100;
+  var SJp = cnt("sj_passed_v1"), SJt = num("sj_total_v1",36), SJw = cnt("sj_wrong_v1");
+  var PTp = cnt("pta_passed_v1"), PTt = num("pta_total_v1",17), PTw = cnt("pta_wrong_v1");
+  function bar(name,p,t,color,sub){
+    var pc = t? Math.round(p/t*100):0;
+    return '<div class="prog"><div class="top"><span>'+name+'</span><span>'+p+' / '+t+'（'+pc+'%）</span></div>'
+      +'<div class="bar"><i class="'+color+'" style="width:'+pc+'%"></i></div>'
+      +(sub?'<div class="meta">'+sub+'</div>':'')+'</div>';
+  }
+  /* 今日建议 */
+  var tips=[];
+  if(L408+SJp+PTp===0) tips.push("今天就从「上机实战」第 1 课开始吧（点上面标签）。");
+  if(SJw>0) tips.push("上机实战有 "+SJw+" 道错题，去「上机实战 → ❌ 错题本」重练一遍。");
+  if(L408<T408) tips.push("再刷 3~5 个「408 知识点」，做里面的例题自测。");
+  if(PTp<PTt) tips.push("去「PTA 乙级」按顺序做 1~2 节，配合 1001~1050 刷题清单。");
+  if(SJp>=SJt && SJp>0) tips.push("上机课都过了，很棒！去「PTA 乙级」冲题量，或「408」做整套知识点。");
+  tips = tips.slice(0,3);
+  if(tips.length===0) tips.push("保持节奏，每天进步一点点就行。");
+
+  var html =
+    '<h1>今日学习 <span class="small">'+today()+'</span></h1>'
+    +'<div class="card"><h2>📊 各模块进度</h2>'
+    + bar("📘 408 知识点（已学会）", L408, T408, "", "")
+    + bar("💻 上机实战（已通过）", SJp, SJt, "g", (SJw>0?("错题本 "+SJw+" 题"):"错题本为空"))
+    + bar("🎯 PTA 乙级（已通过）", PTp, PTt, "o", (PTw>0?("错题本 "+PTw+" 题"):"错题本为空"))
+    +'</div>'
+    +'<div class="card"><h2>💡 今日学习建议</h2><div class="tip">'+tips.map(function(t){return "· "+t;}).join("<br>")+'</div>'
+    +'<div class="quick"><button class="qbtn" data-go="1">去上机实战</button><button class="qbtn" data-go="0">去408知识点</button><button class="qbtn" data-go="2">去PTA乙级</button><button class="qbtn" id="refresh">🔄 刷新进度</button></div>'
+    +'<div class="note">进度取自本机浏览器存储。用网页版（托管后）打开时，三个模块与首页共享进度；若本地直接双击、数字显示为 0，请用托管后的网址打开。</div></div>'
+    +'<div class="card"><h2>✅ 今日目标（打勾）</h2><ul class="todo" id="todo"></ul></div>';
+  document.getElementById("dashwrap").innerHTML = html;
+
+  /* 今日目标清单 */
+  var key="dash_todo_"+today();
+  var items; try{ items=JSON.parse(localStorage.getItem(key)||"null"); }catch(e){ items=null; }
+  if(!items) items=[{t:"上机实战：完成 1 节",done:false},{t:"408：学会 3 个知识点",done:false},{t:"PTA：做 1 节",done:false}];
+  var ul=document.getElementById("todo");
+  ul.innerHTML="";
+  items.forEach(function(it,i){
+    var li=document.createElement("li");
+    var cb=document.createElement("input"); cb.type="checkbox"; cb.checked=it.done;
+    var lb=document.createElement("label"); lb.textContent=it.t; if(it.done) lb.className="done";
+    cb.onchange=function(){ items[i].done=cb.checked; localStorage.setItem(key,JSON.stringify(items)); lb.className=cb.checked?"done":""; };
+    li.appendChild(cb); li.appendChild(lb); ul.appendChild(li);
+  });
+
+  /* 快捷跳转 + 刷新 */
+  document.querySelectorAll("#dashwrap [data-go]").forEach(function(b){
+    b.onclick=function(){ select(b.getAttribute("data-go")); };
+  });
+  var rf=document.getElementById("refresh"); if(rf) rf.onclick=renderDash;
+}
+
+/* 标签切换 */
+function select(t){
+  document.querySelectorAll(".tab").forEach(function(x){ x.classList.toggle("on", x.getAttribute("data-t")===t); });
+  document.querySelectorAll("iframe").forEach(function(f){ f.classList.remove("on"); });
+  var dash=document.getElementById("dash");
+  if(t==="dash"){ dash.classList.add("on"); renderDash(); }
+  else { dash.classList.remove("on"); document.getElementById("f"+t).classList.add("on"); }
+}
+document.querySelectorAll(".tab").forEach(function(x){ x.onclick=function(){ select(x.getAttribute("data-t")); }; });
+renderDash();
+</script>
+</body>
+</html>

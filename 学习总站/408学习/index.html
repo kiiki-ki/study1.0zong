@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<title>408 学习 · 数据结构 / 组成原理 / 操作系统 / 网络</title>
+<style>
+  :root{ --blue:#2563eb; --green:#2f9e44; --red:#e03131; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;margin:0;background:#f4f6fa;color:#1f2733;}
+  header{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e3e8f0;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  header h1{font-size:17px;margin:0;}
+  #search{flex:1;min-width:140px;border:1px solid #dbe3ef;border-radius:9px;padding:8px 12px;font-size:14px;outline:none;}
+  #prog{font-size:12px;color:#6b7686;}
+  #tabs{display:flex;gap:8px;padding:10px 14px 0;flex-wrap:wrap;}
+  .tab{padding:8px 12px;border-radius:10px;background:#fff;border:1px solid #e3e8f0;cursor:pointer;font-size:13px;}
+  .tab.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  #chap{padding:12px 14px 0;max-width:860px;margin:0 auto;}
+  .chapter{margin:12px 0 4px;font-size:13px;color:#8a95a6;font-weight:600;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{padding:7px 12px;border-radius:16px;background:#fff;border:1px solid #e3e8f0;cursor:pointer;font-size:13px;}
+  .chip.on{background:#e7f0ff;border-color:var(--blue);color:var(--blue);font-weight:600;}
+  .chip .ok{color:var(--green);}
+  main{max-width:860px;margin:0 auto;padding:16px 14px 90px;}
+  .card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(30,50,90,.06);}
+  .card .meta{color:#8a95a6;font-size:12px;margin-bottom:6px;}
+  .card h2{margin:0 0 14px;font-size:20px;}
+  h3.sec{font-size:14px;color:var(--blue);margin:18px 0 8px;border-left:3px solid var(--blue);padding-left:8px;}
+  .txt{font-size:15px;line-height:1.8;white-space:pre-wrap;}
+  .ex{border-top:1px dashed #e3e8f0;padding-top:12px;margin-top:12px;}
+  .qtext{font-size:15px;line-height:1.7;margin:4px 0 10px;}
+  .opts{display:flex;flex-direction:column;gap:8px;}
+  .opt{padding:10px 13px;border:1px solid #e3e8f0;border-radius:10px;cursor:pointer;font-size:14px;display:flex;gap:8px;}
+  .opt .k{font-weight:700;color:#8a95a6;}
+  .opt.right{background:#e9f8ee;border-color:var(--green);} .opt.right .k{color:var(--green);}
+  .opt.wrong{background:#fdecec;border-color:var(--red);} .opt.wrong .k{color:var(--red);}
+  .fb{margin-top:10px;font-weight:600;} .fb.ok{color:var(--green);} .fb.no{color:var(--red);}
+  .exp{margin-top:8px;background:#f7f9fc;border-left:3px solid var(--blue);border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.7;white-space:pre-wrap;font-weight:400;color:#1f2733;}
+  .bar{display:flex;gap:8px;margin-top:16px;}
+  .bar .btn{flex:1;border:0;border-radius:9px;padding:11px;font-size:14px;cursor:pointer;background:#eef2f9;color:var(--blue);}
+  .bar .btn.learn{background:#e9f8ee;color:var(--green);}
+  .bar .btn.learn.on{background:var(--green);color:#fff;}
+
+  /* 问答 */
+  #askBtn{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:30;border:0;border-radius:26px;
+    padding:13px 18px;font-size:15px;color:#fff;background:var(--blue);box-shadow:0 6px 18px rgba(37,99,235,.4);cursor:pointer;}
+  #ask{position:fixed;inset:0;background:rgba(20,30,50,.45);display:none;z-index:60;padding:14px;}
+  #ask.show{display:block;}
+  #ask .box{background:#fff;border-radius:16px;max-width:720px;margin:0 auto;height:calc(100dvh - 28px);display:flex;flex-direction:column;overflow:hidden;}
+  #ask .head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #e3e8f0;}
+  #ask .head b{flex:1;font-size:15px;}
+  #ask .ib{border:0;background:#eef2f9;color:var(--blue);border-radius:9px;padding:7px 11px;font-size:13px;cursor:pointer;}
+  #askBody{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f7f9fc;}
+  .msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+  .msg.me{align-self:flex-end;background:var(--blue);color:#fff;border-top-right-radius:4px;}
+  .msg.ai{align-self:flex-start;background:#fff;border:1px solid #e3e8f0;border-top-left-radius:4px;}
+  .src{margin-top:8px;font-size:12px;color:#6b7686;}
+  .src a{display:inline-block;margin:3px 6px 0 0;color:var(--blue);cursor:pointer;text-decoration:underline;}
+  #askFoot{display:flex;gap:8px;padding:10px;border-top:1px solid #e3e8f0;}
+  #askIn{flex:1;border:1px solid #dbe3ef;border-radius:10px;padding:10px 12px;font-size:14px;outline:none;}
+  #askSend{border:0;border-radius:10px;padding:10px 16px;background:var(--blue);color:#fff;font-size:14px;cursor:pointer;}
+  #askSet{display:none;padding:12px 14px;border-bottom:1px solid #e3e8f0;background:#fbfcfe;}
+  #askSet label{font-size:12px;color:#6b7686;display:block;margin:6px 0 3px;}
+  #askSet input{width:100%;border:1px solid #dbe3ef;border-radius:8px;padding:8px 10px;font-size:13px;outline:none;}
+</style>
+</head>
+<body>
+<header>
+  <h1>408 学习</h1>
+  <input id="search" placeholder="搜知识点…（如 页面置换 / Cache / TCP）">
+  <span id="prog"></span>
+</header>
+<div id="tabs"></div>
+<div id="chap"></div>
+<main><div id="content"></div></main>
+
+<button id="askBtn">💬 问问题</button>
+<div id="ask">
+  <div class="box">
+    <div class="head">
+      <b>知识问答</b>
+      <button class="ib" id="askCfg">⚙ 设模型</button>
+      <button class="ib" id="askClose">关闭</button>
+    </div>
+    <div id="askSet">
+      <label>API Key（留空 = 只用本地题库检索作答）</label>
+      <input id="kKey" placeholder="sk-…">
+      <label>Base URL</label>
+      <input id="kBase" placeholder="https://api.deepseek.com">
+      <label>Model</label>
+      <input id="kModel" placeholder="deepseek-chat">
+      <div style="margin-top:10px"><button class="ib" id="kSave" style="background:var(--blue);color:#fff">保存</button>
+      <span style="font-size:12px;color:#8a95a6">支持 DeepSeek / 智谱(glm-4-flash 免费) 等 OpenAI 兼容接口</span></div>
+    </div>
+    <div id="askBody"></div>
+    <div id="askFoot">
+      <input id="askIn" placeholder="问点什么…（如：讲讲虚拟内存 / 快排为什么不稳定）">
+      <button id="askSend">发送</button>
+    </div>
+  </div>
+</div>
+
+<script src="data-ds.js"></script>
+<script src="data-co.js"></script>
+<script src="data-os.js"></script>
+<script src="data-cn.js"></script>
+<script src="data-extra.js"></script>
+<script>
+const DATA = window.COURSE || [];
+const KEYS=["A","B","C","D","E","F"];
+const SUBS=[...new Set(DATA.map(e=>e.subject))];
+let subject=SUBS[0]||"", cur=0;
+let learned={}; try{ learned=JSON.parse(localStorage.getItem("c408_learned")||"{}"); }catch(e){ learned={}; }
+function keyOf(e){ return e.subject+"::"+e.title; }
+function saveL(){ localStorage.setItem("c408_learned", JSON.stringify(learned)); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function subjEntries(){ return DATA.filter(e=>e.subject===subject); }
+function exsOf(e){ return e.examples || (e.example ? [e.example] : []); }
+
+function renderTabs(){
+  const t=document.getElementById("tabs"); t.innerHTML="";
+  SUBS.forEach(s=>{
+    const b=document.createElement("button");
+    b.className="tab"+(s===subject?" on":""); b.textContent=s;
+    b.onclick=()=>{ subject=s; cur=0; renderTabs(); renderChap(); render(); };
+    t.appendChild(b);
+  });
+}
+function renderChap(){
+  const box=document.getElementById("chap"); box.innerHTML="";
+  const kw=(document.getElementById("search").value||"").trim();
+  const es=subjEntries().filter(e=>!kw || (e.title+e.chapter+e.teach).includes(kw));
+  if(!es.length){ box.innerHTML='<div class="chapter">没有匹配的知识点</div>'; return; }
+  const chapters=[...new Set(es.map(e=>e.chapter))];
+  chapters.forEach(ch=>{
+    const h=document.createElement("div"); h.className="chapter"; h.textContent="▪ "+ch; box.appendChild(h);
+    const wrap=document.createElement("div"); wrap.className="chips";
+    es.filter(e=>e.chapter===ch).forEach(e=>{
+      const i=subjEntries().indexOf(e);
+      const b=document.createElement("button");
+      b.className="chip"+(i===cur?" on":"");
+      b.innerHTML=esc(e.title)+(learned[keyOf(e)]?' <span class="ok">✓</span>':"");
+      b.onclick=()=>{ cur=i; renderChap(); render(); window.scrollTo(0,0); };
+      wrap.appendChild(b);
+    });
+    box.appendChild(wrap);
+  });
+}
+function gotoEntry(e){
+  subject=e.subject; cur=subjEntries().indexOf(e);
+  renderTabs(); renderChap(); render(); window.scrollTo(0,0);
+}
+function render(){
+  const es=subjEntries(); const box=document.getElementById("content");
+  document.getElementById("prog").textContent="已学会 "+es.filter(e=>learned[keyOf(e)]).length+"/"+es.length;
+  if(!es.length){ box.innerHTML='<div class="card"><div class="txt">暂无内容。</div></div>'; return; }
+  if(cur<0)cur=0; if(cur>=es.length)cur=es.length-1;
+  const e=es[cur]; const exs=exsOf(e);
+  let exHtml="";
+  exs.forEach((ex,ei)=>{
+    let opts="";
+    (ex.options||[]).forEach((o,i)=>{ opts+='<div class="opt" data-k="'+KEYS[i]+'"><span class="k">'+KEYS[i]+'.</span><span>'+esc(o)+'</span></div>'; });
+    exHtml+='<div class="ex" data-ans="'+esc(ex.answer)+'">'
+      +'<div class="qtext">例'+(exs.length>1?(ei+1)+" ":"")+esc(ex.q||"")+'</div>'
+      +'<div class="opts">'+opts+'</div><div class="fb"></div></div>';
+  });
+  box.innerHTML='<div class="card">'
+   +'<div class="meta">'+esc(e.subject)+' · '+esc(e.chapter)+'</div>'
+   +'<h2>'+esc(e.title)+'</h2>'
+   +'<h3 class="sec">📖 讲解</h3><div class="txt">'+esc(e.teach)+'</div>'
+   +'<h3 class="sec">⚙️ 运行原理</h3><div class="txt">'+esc(e.principle)+'</div>'
+   +'<h3 class="sec">✏️ 例题</h3>'+exHtml
+   +'<div class="bar">'
+   +'<button class="btn" id="prev">上一节</button>'
+   +'<button class="btn learn'+(learned[keyOf(e)]?" on":"")+'" id="learn">'+(learned[keyOf(e)]?"✓ 已学会":"标记学会")+'</button>'
+   +'<button class="btn" id="next">下一节</button>'
+   +'</div></div>';
+  box.querySelectorAll(".ex").forEach((block,bi)=>{
+    const ans=block.getAttribute("data-ans"); const fb=block.querySelector(".fb");
+    block.querySelectorAll(".opt").forEach(el=>{
+      el.onclick=()=>{
+        if(fb.dataset.done) return;
+        const k=el.getAttribute("data-k");
+        block.querySelectorAll(".opt").forEach(x=>{ const kk=x.getAttribute("data-k");
+          if(kk===ans) x.classList.add("right"); else if(kk===k) x.classList.add("wrong"); });
+        const ok=k===ans; fb.className="fb "+(ok?"ok":"no");
+        fb.innerHTML=(ok?"✅ 正确":"❌ 错误，正确答案 "+ans)+'<div class="exp"><b>解析：</b>'+esc((exs[bi]||{}).explain||"")+'</div>';
+        fb.dataset.done="1";
+      };
+    });
+  });
+  document.getElementById("prev").onclick=()=>{ cur--; renderChap(); render(); window.scrollTo(0,0); };
+  document.getElementById("next").onclick=()=>{ cur++; renderChap(); render(); window.scrollTo(0,0); };
+  document.getElementById("learn").onclick=()=>{ learned[keyOf(e)]=!learned[keyOf(e)]; saveL(); renderChap(); render(); };
+}
+document.getElementById("search").addEventListener("input",renderChap);
+
+/* ================= 问答 ================= */
+const LS_LLM="c408_llm";
+function loadLLM(){ try{ return JSON.parse(localStorage.getItem(LS_LLM)||"{}"); }catch(e){ return {}; } }
+function bigrams(s){ s=String(s).replace(/\s/g,"").toLowerCase(); const r=[]; for(let i=0;i<s.length-1;i++) r.push(s.slice(i,i+2)); return r; }
+function retrieve(query,k){
+  const qb=bigrams(query); if(!qb.length) return [];
+  return DATA.map(e=>{
+    const t=(e.title+e.chapter+e.teach+(e.principle||"")).toLowerCase();
+    let sc=0; qb.forEach(b=>{ if(t.includes(b)) sc++; });
+    return {e,sc};
+  }).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,k).map(x=>x.e);
+}
+const ask=document.getElementById("ask"), askBody=document.getElementById("askBody");
+function addMsg(who,text,srcs){
+  const d=document.createElement("div"); d.className="msg "+(who==="me"?"me":"ai");
+  d.innerHTML=esc(text);
+  if(srcs&&srcs.length){
+    const s=document.createElement("div"); s.className="src"; s.textContent="相关知识点：";
+    srcs.forEach(e=>{ const a=document.createElement("a"); a.textContent=e.subject+"·"+e.title;
+      a.onclick=()=>{ ask.classList.remove("show"); gotoEntry(e); }; s.appendChild(a); });
+    d.appendChild(s);
+  }
+  askBody.appendChild(d); askBody.scrollTop=askBody.scrollHeight; return d;
+}
+function offlineAnswer(q,ctx){
+  if(!ctx.length) return "题库里没找到很相关的知识点。换个更具体的说法试试（如“页面置换”“TCP 拥塞控制”“哈夫曼树”）。\n\n（提示：在 ⚙设模型 里填一个大模型 Key，我就能更自由地解答。）";
+  let out="我按你的问题在题库里找到了这些，先供参考：\n";
+  ctx.forEach(e=>{ out+="\n【"+e.subject+" · "+e.title+"】\n"+e.teach+"\n（原理）"+e.principle; });
+  out+="\n\n（想要更聪明的解答：点右上「⚙设模型」填入大模型 Key。）";
+  return out;
+}
+async function llmAnswer(q,ctx){
+  const c=loadLLM(); if(!c.key) return null;
+  const base=(c.base||"https://api.deepseek.com").replace(/\/+$/,"");
+  const context=ctx.map(e=>"【"+e.subject+"·"+e.title+"】"+e.teach+" 原理："+e.principle).join("\n\n");
+  const messages=[
+    {role:"system",content:"你是 408 计算机考研辅导老师，回答准确、条理清晰、给必要例子；优先依据提供的资料，资料不足可用你的知识补充但不编造。"},
+    {role:"user",content:"参考资料：\n"+(context||"（无）")+"\n\n我的问题："+q}
+  ];
+  try{
+    const r=await fetch(base+"/chat/completions",{method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+c.key},
+      body:JSON.stringify({model:c.model||"deepseek-chat",messages,temperature:0.5,max_tokens:900})});
+    const d=await r.json();
+    return (d.choices&&d.choices[0].message.content.trim())||null;
+  }catch(e){ return null; }
+}
+async function doAsk(){
+  const inp=document.getElementById("askIn"); const q=(inp.value||"").trim(); if(!q) return;
+  inp.value=""; addMsg("me",q);
+  const ctx=retrieve(q,4);
+  const waiting=addMsg("ai","思考中…");
+  let ans=await llmAnswer(q,ctx);
+  if(!ans) ans=offlineAnswer(q,ctx);
+  waiting.innerHTML=esc(ans);
+  if(ctx.length&&ctx[0]!==undefined){
+    const s=document.createElement("div"); s.className="src"; s.textContent="相关知识点：";
+    ctx.forEach(e=>{ const a=document.createElement("a"); a.textContent=e.subject+"·"+e.title;
+      a.onclick=()=>{ ask.classList.remove("show"); gotoEntry(e); }; s.appendChild(a); });
+    waiting.appendChild(s);
+  }
+  askBody.scrollTop=askBody.scrollHeight;
+}
+document.getElementById("askBtn").onclick=()=>{ ask.classList.add("show"); askBody.scrollTop=askBody.scrollHeight; };
+document.getElementById("askClose").onclick=()=>ask.classList.remove("show");
+document.getElementById("askSend").onclick=doAsk;
+document.getElementById("askIn").addEventListener("keydown",e=>{ if(e.key==="Enter") doAsk(); });
+document.getElementById("askCfg").onclick=()=>{ const s=document.getElementById("askSet");
+  s.style.display=s.style.display==="block"?"none":"block"; };
+document.getElementById("kSave").onclick=()=>{
+  const c={key:document.getElementById("kKey").value.trim(),base:document.getElementById("kBase").value.trim()||"https://api.deepseek.com",model:document.getElementById("kModel").value.trim()||"deepseek-chat"};
+  localStorage.setItem(LS_LLM,JSON.stringify(c)); document.getElementById("askSet").style.display="none";
+  addMsg("ai", c.key?("已启用大模型，来问我吧～（模型："+c.model+"）"):"已保存（未填 Key，将只用本地题库检索）。");
+};
+(function(){ const c=loadLLM(); document.getElementById("kKey").value=c.key||""; document.getElementById("kBase").value=c.base||""; document.getElementById("kModel").value=c.model||""; })();
+
+renderTabs(); renderChap(); render();
+</script>
+</body>
+</html>

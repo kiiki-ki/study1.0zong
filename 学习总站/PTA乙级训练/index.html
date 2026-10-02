@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4338ca">
+<title>PTA 乙级训练 · C 语言</title>
+<style>
+  :root{ --teal:#0f766e; --blue:#2563eb; --red:#e03131; --green:#2f9e44; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;margin:0;background:#f2f5f9;color:#1f2733;}
+  header{position:sticky;top:0;z-index:10;background:#4338ca;color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px;}
+  header h1{font-size:16px;margin:0;flex:1;}
+  #timer{font-variant-numeric:tabular-nums;font-size:15px;font-weight:700;background:rgba(0,0,0,.22);padding:4px 10px;border-radius:8px;display:none;}
+  #toolbar{max-width:1000px;margin:0 auto;padding:10px 14px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .tbtn{border:0;border-radius:9px;padding:8px 12px;font-size:13px;cursor:pointer;background:#fff;border:1px solid #dbe3ef;color:#33465e;}
+  #tabs{display:flex;gap:8px;padding:10px 14px 0;flex-wrap:wrap;max-width:1000px;margin:0 auto;}
+  .tab{padding:8px 12px;border-radius:10px;background:#fff;border:1px solid #dbe3ef;cursor:pointer;font-size:13px;}
+  .tab.on{background:var(--teal);color:#fff;border-color:var(--teal);}
+  #list{max-width:1000px;margin:0 auto;padding:12px 14px 0;display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{padding:7px 12px;border-radius:16px;background:#fff;border:1px solid #dbe3ef;cursor:pointer;font-size:13px;}
+  .chip.on{background:#e2f5f2;border-color:var(--teal);color:var(--teal);font-weight:600;}
+  .chip .bad{color:var(--red);font-weight:700;}
+  main{max-width:1000px;margin:0 auto;padding:14px 14px 40px;display:grid;grid-template-columns:1fr;gap:14px;}
+  @media(min-width:900px){ main{grid-template-columns:1fr 1fr;} .span{grid-column:1 / -1;} }
+  .card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(30,50,90,.06);}
+  .card h2{margin:0 0 10px;font-size:19px;}
+  h3.sec{font-size:13px;color:var(--teal);margin:14px 0 6px;border-left:3px solid var(--teal);padding-left:8px;}
+  .txt{font-size:14.5px;line-height:1.8;white-space:pre-wrap;}
+  .hint{background:#fff8e6;border-left:3px solid #f0b400;border-radius:8px;padding:9px 12px;font-size:13.5px;line-height:1.7;margin-top:6px;}
+  textarea{width:100%;border:1px solid #dbe3ef;border-radius:10px;font-family:Consolas,Menlo,monospace;font-size:13.5px;line-height:1.5;padding:10px;outline:none;resize:vertical;}
+  #editor{height:300px;background:#0f1b2d;color:#e6edf3;border-color:#0f1b2d;white-space:pre;overflow:auto;}
+  #stdin{height:70px;}
+  #out{white-space:pre-wrap;background:#0f1b2d;color:#7ee787;border-radius:10px;padding:12px;font-family:Consolas,Menlo,monospace;font-size:13.5px;min-height:60px;line-height:1.5;}
+  .verdict{display:none;margin-bottom:8px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:700;}
+  .verdict.show{display:block;}
+  .verdict.ok{background:#e9f8ee;color:var(--green);border:1px solid var(--green);}
+  .verdict.no{background:#fdecec;color:var(--red);border:1px solid var(--red);}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0;}
+  .btn{border:0;border-radius:9px;padding:10px 14px;font-size:14px;cursor:pointer;background:#e8eef6;color:var(--blue);}
+  .btn.run{background:var(--teal);color:#fff;}
+  .btn.ghost{background:#eef2f7;color:#476;}
+  select{border:1px solid #dbe3ef;border-radius:8px;padding:8px 10px;font-size:14px;outline:none;background:#fff;}
+  .exp{font-size:12.5px;color:#6b7686;margin-top:6px;white-space:pre-wrap;}
+  label.k{font-size:12px;color:#6b7686;display:block;margin:8px 0 4px;}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">PTA 乙级训练 · C 语言</h1>
+  <span id="timer"></span>
+</header>
+<div id="toolbar">
+  <button class="tbtn" id="randBtn">🎲 随机一题</button>
+  <button class="tbtn" id="simBtn">⏱ 限时模拟(1.5h)</button>
+  <button class="tbtn" id="wrongBtn">❌ 错题本 (0)</button>
+</div>
+<div id="tabs"></div>
+<div id="list"></div>
+<main>
+  <div class="card span" id="lesson"></div>
+  <div class="card">
+    <h3 class="sec">✍️ 自己敲代码（可修改）</h3>
+    <div class="row">
+      <select id="lang"><option value="c">C</option><option value="cpp">C++</option><option value="python">Python</option></select>
+      <button class="btn ghost" id="restore">↺ 恢复参考代码</button>
+    </div>
+    <textarea id="editor" spellcheck="false"></textarea>
+    <label class="k">📥 标准输入（程序要读的数据写这里）</label>
+    <textarea id="stdin" spellcheck="false"></textarea>
+    <div class="row"><button class="btn run" id="run">▶ 运行并判题</button><span id="status" style="font-size:13px;color:#6b7686"></span></div>
+  </div>
+  <div class="card">
+    <h3 class="sec">📤 运行输出</h3>
+    <div id="verdict" class="verdict"></div>
+    <pre id="out">点“▶ 运行并判题”后，这里显示结果并自动判题。</pre>
+    <h3 class="sec">🎯 期望输出（判题标准）</h3>
+    <div class="exp" id="expout"></div>
+  </div>
+</main>
+
+<script src="lessons.js"></script>
+<script>
+const L = window.LESSONS || [];
+const CHAPTERS = [...new Set(L.map(x=>x.chapter))];
+let chapter = CHAPTERS[0], cur = 0, curLesson = null, wrongMode = false;
+const COMPILER = { c:"gcc-13.2.0-c", cpp:"gcc-13.2.0", python:"cpython-3.12.7" };
+const LS_WRONG = "pta_wrong_v1";
+const LS_PASSED = "pta_passed_v1";
+let passed = {}; try{ passed = JSON.parse(localStorage.getItem(LS_PASSED)||"{}"); }catch(e){ passed = {}; }
+function savePassed(){ localStorage.setItem(LS_PASSED, JSON.stringify(passed)); }
+try{ localStorage.setItem("pta_total_v1", String((window.LESSONS||[]).length)); }catch(e){}
+let wrong = {}; try{ wrong = JSON.parse(localStorage.getItem(LS_WRONG)||"{}"); }catch(e){ wrong = {}; }
+function saveWrong(){ localStorage.setItem(LS_WRONG, JSON.stringify(wrong)); updateWrongBtn(); }
+function wrongCount(){ return Object.keys(wrong).length; }
+function updateWrongBtn(){ document.getElementById("wrongBtn").textContent = "❌ 错题本 (" + wrongCount() + ")"; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function norm(t){ return String(t==null?"":t).replace(/\r/g,"").split("\n").map(l=>l.replace(/[ \t]+$/,"")).join("\n").replace(/\n+$/,""); }
+function chapterLessons(){ return wrongMode ? L.filter(x=>wrong[x.id]) : L.filter(x=>x.chapter===chapter); }
+
+function renderTabs(){
+  const t=document.getElementById("tabs"); t.innerHTML="";
+  CHAPTERS.forEach(c=>{ const b=document.createElement("button"); b.className="tab"+(!wrongMode&&c===chapter?" on":""); b.textContent=c;
+    b.onclick=()=>{ wrongMode=false; chapter=c; cur=0; renderTabs(); renderList(); loadLesson(); }; t.appendChild(b); });
+}
+function renderList(){
+  const box=document.getElementById("list"); box.innerHTML="";
+  const es=chapterLessons();
+  if(!es.length){ box.innerHTML='<span style="color:#8a95a6;font-size:13px">'+(wrongMode?"错题本是空的，继续加油！":"暂无内容")+'</span>'; return; }
+  es.forEach((x,i)=>{ const b=document.createElement("button"); b.className="chip"+(i===cur?" on":"");
+    b.innerHTML=esc(x.title)+(wrong[x.id]?' <span class="bad">✗</span>':"");
+    b.onclick=()=>{ cur=i; renderList(); loadLesson(); }; box.appendChild(b); });
+}
+function loadLesson(){
+  const es=chapterLessons(); const x=es[cur]; if(!x) return; curLesson = x;
+  document.getElementById("lesson").innerHTML =
+    '<div class="txt" style="color:#8a95a6;font-size:12px">'+esc(x.chapter)+'</div>'
+    +'<h2>'+esc(x.title)+'</h2>'
+    +'<h3 class="sec">📖 讲解</h3><div class="txt">'+esc(x.teach)+'</div>'
+    +'<h3 class="sec">💡 要点 / 易错</h3><div class="hint">'+esc(x.points)+'</div>'
+    +'<h3 class="sec">📄 参考代码</h3><div class="txt" style="font-family:Consolas,monospace;font-size:13px;background:#f7f9fc;padding:10px;border-radius:8px">'+esc(x.code)+'</div>';
+  document.getElementById("editor").value = x.code;
+  document.getElementById("stdin").value = x.stdin || "";
+  document.getElementById("expout").textContent = x.output || "（无）";
+  document.getElementById("lang").value = x.lang || "c";
+  document.getElementById("out").textContent = "点“▶ 运行并判题”后，这里显示结果并自动判题。";
+  document.getElementById("status").textContent = "";
+  const v = document.getElementById("verdict"); v.className = "verdict"; v.textContent = "";
+}
+function judge(actual){
+  const v = document.getElementById("verdict");
+  if(!curLesson){ v.className="verdict"; v.textContent=""; return; }
+  if(actual === null){ v.className="verdict no show"; v.textContent="❌ 未通过：编译错误（看下方输出）"; markWrong(); return; }
+  const exp = norm(curLesson.output), act = norm(actual);
+  if(exp === act){ v.className="verdict ok show"; v.textContent="✅ 通过：输出与期望一致"; if(wrong[curLesson.id]){ delete wrong[curLesson.id]; saveWrong(); renderList(); } passed[curLesson.id]=1; savePassed(); if(sim && sim.queue && sim.queue.indexOf(curLesson.id)>=0) sim.passed[curLesson.id]=1; }
+  else { v.className="verdict no show"; v.textContent="❌ 未通过：输出与期望不一致（对比 🎯期望输出，注意空格/换行）"; markWrong(); }
+}
+function markWrong(){ if(curLesson){ wrong[curLesson.id]=1; saveWrong(); renderList(); } }
+
+async function run(){
+  const lang = document.getElementById("lang").value;
+  const code = document.getElementById("editor").value;
+  const stdin = document.getElementById("stdin").value;
+  const out = document.getElementById("out"), st = document.getElementById("status");
+  st.textContent = "";
+  for(let attempt = 1; attempt <= 2; attempt++){
+    out.textContent = attempt === 1 ? "运行中…（在线编译，第一次可能要几秒）" : "在线编译器繁忙，重试中…";
+    try{
+      const r = await fetch("https://wandbox.org/api/compile.json", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ compiler: COMPILER[lang], code, stdin })
+      });
+      const d = await r.json();
+      const transient = !d.compiler_error && !(d.program_output||"") && /OCI runtime|crun|Resource temporarily/.test(d.program_error||"");
+      if(transient && attempt === 1) continue;
+      let s = "";
+      if(d.compiler_error){ s = "❌ 编译错误：\n" + d.compiler_error; judge(null); }
+      else {
+        s = d.program_output || "";
+        if(d.program_error) s += (s?"\n":"") + "[运行信息]\n" + d.program_error;
+        if(!s) s = "(程序没有任何输出)";
+        if(d.status && d.status!=="0") s += "\n[退出码 " + d.status + "]";
+        judge(d.program_output || "");
+      }
+      out.textContent = s; st.textContent = "运行完成"; return;
+    }catch(e){
+      if(attempt === 1) continue;
+      out.textContent = "运行失败：" + e + "\n\n可能是网络问题，或在线编译器暂时不可用。\n可以把代码复制到本地 DevC++ 运行。";
+      judge(null);
+    }
+  }
+}
+
+/* 随机一题 */
+document.getElementById("randBtn").onclick = () => {
+  wrongMode = false; renderTabs();
+  const x = L[Math.floor(Math.random()*L.length)];
+  chapter = x.chapter; cur = chapterLessons().indexOf(x);
+  renderTabs(); renderList(); loadLesson();
+};
+
+/* 错题本 */
+document.getElementById("wrongBtn").onclick = () => {
+  wrongMode = !wrongMode; cur = 0; renderTabs(); renderList(); loadLesson();
+};
+
+/* 限时模拟 1.5h */
+let sim = null;
+function fmt(ms){ const s=Math.max(0,Math.floor(ms/1000)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+document.getElementById("simBtn").onclick = () => {
+  const btn = document.getElementById("simBtn"), timer = document.getElementById("timer");
+  if(!sim){
+    sim = { end: Date.now() + 90*60*1000, passed: {}, n: 3 };
+    timer.style.display="inline-block";
+    btn.textContent = "交卷";
+    // 随机抽 3 题
+    const pool = L.slice().sort(()=>Math.random()-0.5).slice(0,3);
+    sim.queue = pool.map(x=>x.id);
+    console.log("模拟题目:", pool.map(x=>x.title));
+    const first = pool[0]; chapter = first.chapter; wrongMode=false; renderTabs(); cur = chapterLessons().indexOf(first); renderList(); loadLesson();
+    sim.tick = setInterval(()=>{ timer.textContent = "⏱ " + fmt(sim.end-Date.now());
+      if(Date.now() >= sim.end) finishSim(); }, 250);
+  } else { finishSim(); }
+};
+function finishSim(){
+  if(!sim) return; clearInterval(sim.tick);
+  const used = 90*60*1000 - (sim.end - Date.now());
+  const passN = Object.keys(sim.passed || {}).length;
+  document.getElementById("timer").style.display="none";
+  document.getElementById("simBtn").textContent = "⏱ 限时模拟(1.5h)";
+  alert("模拟结束！\n本组 3 题，通过 " + passN + " 题。\n用时 " + fmt(Math.min(used, 90*60*1000)) + "。\n（判题没过、或编译错误的题已进错题本）");
+  sim = null; updateWrongBtn();
+}
+/* 交卷时统计：以“错题本是否含该题”近似判定该题未过 */
+document.getElementById("run").onclick = run;
+document.getElementById("restore").onclick = loadLesson;
+updateWrongBtn(); renderTabs(); renderList(); loadLesson();
+</script>
+</body>
+</html>
